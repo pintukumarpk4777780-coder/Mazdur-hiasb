@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>मज़दूर हाज़िरी और हिसाब</title>
+<style>
+:root{--bg:#f6f3ee;--card:#fff;--tx:#1f1f1f;--mu:#6b6b6b;--bd:#e3ddd2;--pr:#c2570c;--ok:#2e7d32;--hf:#e0a100;--ab:#c62828;--pad:#fff3e6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171513;--card:#242120;--tx:#f1ede6;--mu:#a09a90;--bd:#3a3632;--pr:#f08a3c;--ok:#66bb6a;--hf:#ffca28;--ab:#ef5350;--pad:#33261a}}
+:root[data-theme="dark"]{--bg:#171513;--card:#242120;--tx:#f1ede6;--mu:#a09a90;--bd:#3a3632;--pr:#f08a3c;--ok:#66bb6a;--hf:#ffca28;--ab:#ef5350;--pad:#33261a}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Noto Sans Devanagari","Mukta",system-ui,sans-serif;font-size:17px;max-width:720px;margin:0 auto;padding-bottom:40px}
+header{padding:14px 16px 6px;font-size:22px;font-weight:700}
+nav{display:flex;gap:6px;padding:8px 12px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+nav button{flex:1;padding:12px 4px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;font:inherit;font-weight:600}
+nav button.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+main{padding:8px 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+.row{display:flex;align-items:center;gap:10px}
+.sp{flex:1;min-width:0}
+.av{width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--pad);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--pr);flex:none;overflow:hidden}
+.av.big{width:96px;height:96px;font-size:40px}
+.mu{color:var(--mu);font-size:14px}
+.nm{font-weight:700}
+button.b,.b{padding:11px 14px;border:0;border-radius:10px;background:var(--pr);color:#fff;font:inherit;font-weight:600}
+.b.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+.b.r{background:var(--ab)}
+input,select,textarea{width:100%;padding:11px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);font:inherit;margin:4px 0 8px}
+label{font-size:14px;color:var(--mu)}
+.seg{display:flex;gap:6px;margin-top:8px}
+.seg button{flex:1;padding:12px 2px;border:2px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;font:inherit;font-weight:600;font-size:15px}
+.seg button.p.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.seg button.h.on{background:var(--hf);border-color:var(--hf);color:#000}
+.seg button.a.on{background:var(--ab);border-color:var(--ab);color:#fff}
+.bal{font-weight:700;color:var(--ab)}
+.bal.z{color:var(--ok)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.stats div{background:var(--pad);border-radius:10px;padding:10px;text-align:center}
+.stats b{display:block;font-size:20px}
+.modal{position:fixed;inset:0;background:var(--bg);overflow:auto;z-index:20;padding:calc(12px + env(safe-area-inset-top,0px)) 12px 40px;max-width:720px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:8px 0}
+.grid div{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;background:var(--card);border:1px solid var(--bd)}
+.grid .p{background:var(--ok);color:#fff}.grid .h{background:var(--hf);color:#000}.grid .a{background:var(--ab);color:#fff}
+.grid .hd{background:none;border:0;color:var(--mu);font-size:12px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:8px 6px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+.hide{display:none}
+h3{margin:14px 0 6px}
+</style>
+</head>
+<body>
+<header>🏗️ मज़दूर हाज़िरी और हिसाब</header>
+<nav>
+<button id="t1" onclick="tab(1)">📅 हाज़िरी</button>
+<button id="t2" onclick="tab(2)">👷 मज़दूर</button>
+<button id="t3" onclick="tab(3)">💰 हिसाब</button>
+<button id="t4" onclick="tab(4)">💾 बैकअप</button>
+</nav>
+<main id="m"></main>
+<div id="md" class="modal hide"></div>
+
+<script>
+let D={w:[],a:{},p:[]},T=1,ATD=td(),CUR=null,MON=td().slice(0,7);
+try{const s=localStorage.getItem('mh1');if(s)D=JSON.parse(s)}catch(e){}
+function save(){try{localStorage.setItem('mh1',JSON.stringify(D))}catch(e){alert('फोन में जगह कम है, फोटो छोटी रखें या बैकअप लें।')}}
+function td(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const rs=n=>'₹'+(Math.round(n*100)/100).toLocaleString('en-IN');
+const fd=s=>{const[y,m,d]=s.split('-');return d+'/'+m+'/'+y};
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function days(id){return Object.values(D.a[id]||{}).reduce((x,y)=>x+y,0)}
+function earn(w){return days(w.id)*w.rate}
+function paid(id){return D.p.filter(x=>x.wid==id).reduce((x,y)=>x+y.amt,0)}
+function bal(w){return earn(w)-paid(w.id)}
+function av(w,big){return w.photo?`<img class="av ${big?'big':''}" src="${w.photo}">`:`<div class="av ${big?'big':''}">${esc((w.name||'?')[0])}</div>`}
+function tab(n){T=n;for(let i=1;i<=4;i++)document.getElementById('t'+i).className=i==n?'on':'';render()}
+function render(){const m=document.getElementById('m');m.innerHTML=[0,vAtt,vWork,vHisab,vBackup][T]()}
+
+function vAtt(){
+ if(!D.w.length)return`<div class="card">पहले "मज़दूर" टैब में मज़दूर जोड़ें।</div>`;
+ const a=Object.values(D.w).map(w=>({w,v:(D.a[w.id]||{})[ATD]}));
+ const pc=a.filter(x=>x.v===1).length,hc=a.filter(x=>x.v===0.5).length;
+ return`<div class="card"><label>तारीख</label><input type="date" value="${ATD}" onchange="ATD=this.value||td();render()">
+ <div class="mu">पूरे: ${pc} • आधे: ${hc} • गैरहाज़िर/बाकी: ${a.length-pc-hc}</div>
+ <button class="b g" style="margin-top:8px" onclick="allP()">सबको पूरा हाज़िर लगाओ</button></div>`+
+ a.map(({w,v})=>`<div class="card"><div class="row" onclick="prof('${w.id}')">${av(w)}<div class="sp"><div class="nm">${esc(w.name)}</div><div class="mu">दिहाड़ी ${rs(w.rate)}</div></div></div>
+ <div class="seg"><button class="p ${v===1?'on':''}" onclick="mk('${w.id}',1)">✔ पूरा</button><button class="h ${v===0.5?'on':''}" onclick="mk('${w.id}',0.5)">½ आधा</button><button class="a ${v===0?'on':''}" onclick="mk('${w.id}',0)">✘ गैरहाज़िर</button></div></div>`).join('')}
+function mk(id,v){D.a[id]=D.a[id]||{};if(D.a[id][ATD]===v)delete D.a[id][ATD];else D.a[id][ATD]=v;save();render()}
+function allP(){D.w.forEach(w=>{D.a[w.id]=D.a[w.id]||{};if(D.a[w.id][ATD]===undefined)D.a[w.id][ATD]=1});save();render()}
+
+function vWork(){
+ return`<button class="b" style="width:100%;margin-bottom:10px" onclick="addW()">➕ नया मज़दूर जोड़ें</button>`+
+ D.w.map(w=>{const b=bal(w);return`<div class="card row" onclick="prof('${w.id}')">${av(w)}<div class="sp"><div class="nm">${esc(w.name)}</div><div class="mu">${days(w.id)} दिन • दिहाड़ी ${rs(w.rate)}</div></div><div style="text-align:right"><div class="mu">बाकी</div><div class="bal ${b<=0?'z':''}">${rs(b)}</div></div></div>`}).join('')||'<div class="card">अभी कोई मज़दूर नहीं है।</div>'}
+function addW(){const n=prompt('मज़दूर का नाम?');if(!n)return;const r=parseFloat(prompt('रोज़ की दिहाड़ी (₹)?','500'));if(isNaN(r))return;const w={id:uid(),name:n.trim(),rate:r,phone:'',photo:''};D.w.push(w);save();render();prof(w.id)}
+
+function prof(id){
+ CUR=id;const w=D.w.find(x=>x.id==id);if(!w)return;
+ const md=document.getElementById('md');md.classList.remove('hide');
+ const att=D.a[id]||{},b=bal(w);
+ const[y,mo]=MON.split('-').map(Number);const first=new Date(y,mo-1,1).getDay(),nd=new Date(y,mo,0).getDate();
+ let g=['र','सो','मं','बु','गु','शु','श'].map(x=>`<div class="hd">${x}</div>`).join('')+'<div></div>'.repeat(first);
+ for(let d=1;d<=nd;d++){const k=MON+'-'+String(d).padStart(2,'0'),v=att[k];g+=`<div class="${v===1?'p':v===0.5?'h':v===0?'a':''}" onclick="cyc('${k}')">${d}</div>`}
+ const mdays=Object.entries(att).filter(([k])=>k.startsWith(MON)).reduce((s,[,v])=>s+v,0);
+ let cum=0;const pays=D.p.filter(x=>x.wid==id).sort((a,b)=>a.date.localeCompare(b.date)).map(p=>({...p,cum:(cum+=p.amt)}));
+ md.innerHTML=`<button class="b g" onclick="closeP()">← वापस</button>
+ <div class="card" style="margin-top:10px;text-align:center">${av(w,1)}<div style="margin:8px 0"><label class="b g" style="display:inline-block">📷 फोटो बदलें<input type="file" accept="image/*" class="hide" onchange="photo(this)"></label></div>
+ <input value="${esc(w.name)}" onchange="upd('name',this.value)" placeholder="नाम">
+ <label>रोज़ की दिहाड़ी (₹)</label><input type="number" value="${w.rate}" onchange="upd('rate',parseFloat(this.value)||0)">
+ <label>फोन नंबर</label><input type="tel" value="${esc(w.phone)}" onchange="upd('phone',this.value)"></div>
+ <div class="stats"><div><span class="mu">कुल हाज़िरी</span><b>${days(id)} दिन</b></div><div><span class="mu">कुल कमाई</span><b>${rs(earn(w))}</b></div><div><span class="mu">कुल लिया</span><b>${rs(paid(id))}</b></div><div><span class="mu">बाकी</span><b class="bal ${b<=0?'z':''}">${rs(b)}</b></div></div>
+ <h3>💵 पैसा दिया</h3><div class="card"><label>रकम (₹)</label><input id="pa" type="number" inputmode="numeric"><label>तारीख</label><input id="pd" type="date" value="${td()}"><label>नोट (जैसे: एडवांस, त्योहार)</label><input id="pn"><button class="b" style="width:100%" onclick="addP()">पैसा जोड़ें</button></div>
+ <h3>📋 कब-कब कितना लिया</h3>${pays.length?`<div class="card tw"><table><tr><th>तारीख</th><th>रकम</th><th>अब तक कुल</th><th></th></tr>${pays.map(p=>`<tr><td><b>${fd(p.date)}</b><div class="mu">${esc(p.note)}</div></td><td><b>${rs(p.amt)}</b></td><td>${rs(p.cum)}</td><td><button class="b g" style="padding:6px 10px" onclick="delP('${p.id}')">🗑</button></td></tr>`).join('')}<tr><th>कुल</th><th>${rs(cum)}</th><th></th><th></th></tr></table></div>`:'<div class="mu">अभी कोई भुगतान नहीं।</div>'}
+ <h3>📆 हाज़िरी</h3><div class="card"><div class="row"><button class="b g" onclick="mv(-1)">◀</button><div class="sp" style="text-align:center"><input type="month" value="${MON}" onchange="MON=this.value||MON;prof(CUR)" style="margin:0"></div><button class="b g" onclick="mv(1)">▶</button></div>
+ <div class="grid">${g}</div><div class="mu">तारीख दबाएं: पूरा → आधा → गैरहाज़िर → खाली<br>इस महीने: <b>${mdays} दिन</b> = ${rs(mdays*w.rate)}</div></div>
+ <button class="b r" style="width:100%;margin-top:14px" onclick="delW()">इस मज़दूर को हटाएं</button>`;
+ md.scrollTop=0}
+function closeP(){document.getElementById('md').classList.add('hide');render()}
+function upd(k,v){const w=D.w.find(x=>x.id==CUR);w[k]=v;save();prof(CUR)}
+function mv(n){const[y,m]=MON.split('-').map(Number);const d=new Date(y,m-1+n,1);MON=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');prof(CUR)}
+function cyc(k){D.a[CUR]=D.a[CUR]||{};const v=D.a[CUR][k];const nx=v===undefined?1:v===1?0.5:v===0.5?0:undefined;if(nx===undefined)delete D.a[CUR][k];else D.a[CUR][k]=nx;save();prof(CUR)}
+function addP(){const a=parseFloat(document.getElementById('pa').value);if(!a||a<=0)return alert('रकम डालें');D.p.push({id:uid(),wid:CUR,amt:a,date:document.getElementById('pd').value||td(),note:document.getElementById('pn').value});save();prof(CUR)}
+function delP(id){if(confirm('यह भुगतान हटाएं?')){D.p=D.p.filter(x=>x.id!=id);save();prof(CUR)}}
+function delW(){if(confirm('पक्का हटाना है? इसकी सारी हाज़िरी और भुगतान भी मिट जाएंगे।')){D.w=D.w.filter(x=>x.id!=CUR);delete D.a[CUR];D.p=D.p.filter(x=>x.wid!=CUR);save();closeP()}}
+function photo(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=240,c=document.createElement('canvas');const m=Math.min(im.width,im.height);c.width=c.height=s;c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,s,s);upd('photo',c.toDataURL('image/jpeg',.7))};im.src=r.result};r.readAsDataURL(f)}
+
+function vHisab(){
+ let te=0,tp=0,tb=0;
+ const rows=D.w.map(w=>{const e=earn(w),p=paid(w.id),b=e-p;te+=e;tp+=p;tb+=b;return`<tr onclick="prof('${w.id}')"><td>${esc(w.name)}</td><td>${days(w.id)}</td><td>${rs(e)}</td><td>${rs(p)}</td><td class="bal ${b<=0?'z':''}">${rs(b)}</td></tr>`}).join('');
+ return`<div class="card"><div class="tw"><table><tr><th>नाम</th><th>दिन</th><th>कमाई</th><th>लिया</th><th>बाकी</th></tr>${rows}<tr><th>कुल</th><th></th><th>${rs(te)}</th><th>${rs(tp)}</th><th>${rs(tb)}</th></tr></table></div></div><div class="mu">नाम दबाने पर पूरी प्रोफाइल खुलेगी। "बाकी" = कुल कमाई − अब तक दिया गया पैसा।</div>${allPay()}`}
+function allPay(){const L=[...D.p].sort((a,b)=>b.date.localeCompare(a.date));if(!L.length)return'';return`<h3>🗓 सभी भुगतान (तारीख के अनुसार)</h3><div class="card tw"><table><tr><th>तारीख</th><th>नाम</th><th>रकम</th></tr>${L.map(p=>{const w=D.w.find(x=>x.id==p.wid);return`<tr><td>${fd(p.date)}</td><td>${esc(w?w.name:'-')}<div class="mu">${esc(p.note)}</div></td><td><b>${rs(p.amt)}</b></td></tr>`}).join('')}</table></div>`}
+
+function vBackup(){
+ return`<div class="card"><b>बैकअप लें (ज़रूरी)</b><p class="mu">डेटा इसी फोन/ब्राउज़र में सेव होता है। ब्राउज़र का डेटा साफ करने पर मिट सकता है, इसलिए हफ्ते में एक बार नीचे का टेक्स्ट कॉपी करके WhatsApp पर खुद को भेज दें।</p>
+ <button class="b" onclick="mkB()">बैकअप टेक्स्ट बनाएं</button><textarea id="bk" rows="5" placeholder="यहां बैकअप आएगा / यहां पेस्ट करें"></textarea>
+ <button class="b g" onclick="cpB()">📋 कॉपी करें</button> <button class="b g" onclick="rsB()">⬆ इस टेक्स्ट से वापस लाएं</button></div>`}
+function mkB(){document.getElementById('bk').value=JSON.stringify(D)}
+function cpB(){const t=document.getElementById('bk');if(!t.value)mkB();t.select();try{document.execCommand('copy');alert('कॉपी हो गया')}catch(e){alert('टेक्स्ट को देर तक दबाकर कॉपी करें')}}
+function rsB(){try{const d=JSON.parse(document.getElementById('bk').value);if(!d.w||!d.a||!d.p)throw 0;if(confirm('मौजूदा डेटा की जगह यह बैकअप आ जाएगा। ठीक है?')){D=d;save();alert('डेटा वापस आ गया');tab(1)}}catch(e){alert('बैकअप टेक्स्ट सही नहीं है')}}
+tab(1);
+</script>
+</body>
+</html>
